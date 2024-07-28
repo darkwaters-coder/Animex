@@ -9,8 +9,6 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Slider from '@react-native-community/slider';
 import { Foundation } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-
 
 const StreamingScreen = ({ route }) => {
   const { episodeId, provider, episodes } = route.params;
@@ -24,6 +22,7 @@ const StreamingScreen = ({ route }) => {
   const [savedPosition, setSavedPosition] = useState(0);
   const [selectedQuality, setSelectedQuality] = useState('');
   const [resizeMode, setResizeMode] = useState('contain');
+  const [currentEpisodeIndex, setCurrentEpisodeIndex] = useState(episodes.findIndex((episode) => episode.id === episodeId));
   const paneAnim = useRef(new Animated.Value(Dimensions.get('window').width)).current;
   const navigation = useNavigation();
 
@@ -136,6 +135,7 @@ const StreamingScreen = ({ route }) => {
     if (video.current) {
       await video.current.pauseAsync();
       setSavedPosition(0); // Reset saved position for new episode
+      setCurrentEpisodeIndex(episodes.findIndex((ep) => ep.id === episode.id)); // Update current episode index
       try {
         const response = await axios.get(`https://consumet-sand.vercel.app/anime/${provider}/watch/${episode.id}?server=vidstreaming`);
         const videoData = response.data;
@@ -154,7 +154,21 @@ const StreamingScreen = ({ route }) => {
       });
     }
   };
-  
+
+  const handleNextEpisode = async () => {
+    const nextEpisodeIndex = currentEpisodeIndex + 1;
+    if (nextEpisodeIndex < episodes.length) {
+      const nextEpisode = episodes[nextEpisodeIndex];
+      try {
+        await handleEpisodePress(nextEpisode);
+        setCurrentEpisodeIndex(nextEpisodeIndex); // Update the current episode index
+      } catch (error) {
+        console.error('Error handling next episode:', error);
+      }
+    } else {
+      console.log('No more episodes available.');
+    }
+  };
 
   const openPane = () => {
     Animated.timing(paneAnim, {
@@ -187,7 +201,6 @@ const StreamingScreen = ({ route }) => {
 
   return (
     <TouchableOpacity style={styles.container} onPress={toggleControlsVisibility} activeOpacity={1}>
-      
       <Video
         ref={video}
         source={{ uri: videoUrl }}
@@ -198,23 +211,20 @@ const StreamingScreen = ({ route }) => {
         shouldPlay={true}
       />
       {controlsVisible && (
-      
-      
-      <View style={styles.controls}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.topControlButton}>
-          <MaterialIcons name="keyboard-backspace" size={50} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleBackward}>
-          <MaterialIcons name="replay-10" size={50} color="blue" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handlePlayPause}>
-          <Icon name={isPlaying ? "pause" : "play"} size={50} color="blue" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleForward}>
-          <MaterialIcons name="forward-10" size={50} color="blue" />
-        </TouchableOpacity>
-    </View>
- 
+        <View style={styles.controls}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.topControlButton}>
+            <MaterialIcons name="keyboard-backspace" size={50} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleBackward}>
+            <MaterialIcons name="replay-10" size={50} color="blue" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handlePlayPause}>
+            <Icon name={isPlaying ? "pause" : "play"} size={50} color="blue" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleForward}>
+            <MaterialIcons name="forward-10" size={50} color="blue" />
+          </TouchableOpacity>
+        </View>
       )}
 
       {controlsVisible && (
@@ -244,7 +254,7 @@ const StreamingScreen = ({ route }) => {
           <TouchableOpacity style={styles.bottomButton} onPress={toggleResizeMode}>
             <MaterialIcons name="zoom-out-map" size={32} color="blue" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.bottomButton}>
+          <TouchableOpacity style={styles.bottomButton} onPress={handleNextEpisode}>
             <Foundation name="next" size={32} color="blue" />
           </TouchableOpacity>
         </View>
@@ -274,17 +284,18 @@ const StreamingScreen = ({ route }) => {
         <TouchableOpacity onPress={closePane} style={styles.closePaneButton}>
           <Icon name="close" size={30} color="blue" />
         </TouchableOpacity>
-        < Text style={{fontSize:24,marginBottom:10,color:'white'}}>Episodes: </Text>
+        <Text style={{ fontSize: 24, marginBottom: 10, color: 'white' }}>Episodes: </Text>
         <FlatList
           data={episodes}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => handleEpisodePress(item)} style={styles.qualityItem}>
-              <Text style={styles.qualityText}>{item.id}</Text>
-          </TouchableOpacity>
+              <Text style={[styles.qualityText, item.id === episodes[currentEpisodeIndex]?.id && styles.checkMark]}>
+                {item.id} {item.id === episodes[currentEpisodeIndex]?.id && '✓'}
+              </Text>
+            </TouchableOpacity>
           )}
           keyExtractor={(item) => item.id}
         />
-        
       </Animated.View>
     </TouchableOpacity>
   );
@@ -349,27 +360,31 @@ const styles = StyleSheet.create({
     width: '80%',
     backgroundColor: '#2e2c2c',
     borderRadius: 10,
-    height:'100%',
-    padding:10,
-    alignSelf:'center'
+    height: '100%',
+    padding: 10,
+    alignSelf: 'center',
   },
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
-    color:'white'
+    color: 'white',
   },
   qualityItem: {
     padding: 10,
-    borderWidth:2,
-    borderColor:'white',
-    margin:5,
-    borderRadius:20,
-    backgroundColor:'#59514e'
+    borderWidth: 2,
+    borderColor: 'white',
+    margin: 5,
+    borderRadius: 20,
+    backgroundColor: '#59514e',
   },
   qualityText: {
     fontSize: 16,
-    color:'white'
+    color: 'white',
+  },
+  checkMark: {
+    fontWeight: 'bold',
+    color: 'blue',
   },
   closeButton: {
     padding: 10,
@@ -377,9 +392,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   closeButtonText: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color:'blue'
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'blue',
   },
   pane: {
     position: 'absolute',
@@ -391,20 +406,28 @@ const styles = StyleSheet.create({
     padding: 10,
     elevation: 5,
   },
+  qualityItem: {
+    padding: 10,
+    borderWidth: 2,
+    borderColor: 'white',
+    margin: 5,
+    borderRadius: 20,
+    backgroundColor: '#59514e',
+  },
   episodeItem: {
     padding: 10,
-    borderWidth:2,
-    borderColor:'white',
-    margin:5,
-    borderRadius:20,
-    backgroundColor:'#59514e'
+    borderWidth: 2,
+    borderColor: 'white',
+    margin: 5,
+    borderRadius: 20,
+    backgroundColor: '#59514e',
   },
   episodeText: {
     fontSize: 16,
-    color:'white'
+    color: 'white',
   },
   closePaneButton: {
-    alignSelf:'flex-end',
+    alignSelf: 'flex-end',
   },
   closePaneButtonText: {
     fontSize: 16,
@@ -412,11 +435,10 @@ const styles = StyleSheet.create({
   },
   topControlButton: {
     position: 'absolute',
-    bottom:180,
+    bottom: 180,
     left: 10,
     zIndex: 1,
   },
-  
 });
 
 export default StreamingScreen;

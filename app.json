@@ -2,7 +2,7 @@
   "expo": {
     "name": "ANIMEX",
     "slug": "AnimeApp",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/large.png",
     "userInterfaceStyle": "light",
@@ -11,15 +11,19 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
       "package": "com.animexlab",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/large.png",
         "backgroundColor": "#ffffff"
       }
+    },
+    "ios": {
+      "supportsTablet": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,6 +35,12 @@
       "eas": {
         "projectId": "3183af97-8b31-4270-8e48-f074e469e322"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/3183af97-8b31-4270-8e48-f074e469e322"
     }
   }
 }

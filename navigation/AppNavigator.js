@@ -1,16 +1,22 @@
-
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import HomeScreen from '../screens/HomeScreen';
 import InfoScreen from '../screens/InfoScreen';
-import AnimeNewsScreen from '../screens/AnimeNewsScreen'; // Updated import
+import AnimeNewsScreen from '../screens/AnimeNewsScreen';
 import DownloadsScreen from '../screens/DownloadsScreen';
 import SearchScreen from '../screens/SearchScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import StreamingScreen from '../screens/StreamingScreen';
-import NewsInfoScreen from '../screens/NewsInfoScreen'; // Added import
+import NewsInfoScreen from '../screens/NewsInfoScreen';
+import MangaSearchScreen from '../screens/MangaSearchScreen';
+import MangaInfoScreen from '../screens/MangaInfoScreen'; 
+import MangaReaderScreen from '../screens/MangaReaderScreen';
+import ImageViewer from '../screens/ImageViewerScreen';
+import MovieSearchScreen from '../screens/MovieSearchScreen';
+import MovieInfoScreen from '../screens/MovieInfoScreen';
+import MovieStreamingScreen from '../screens/MovieStreamingScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { View, TouchableOpacity } from 'react-native';
 
@@ -19,10 +25,12 @@ const Stack = createStackNavigator();
 
 const tabIcons = {
   HomeStack: 'home-outline',
-  AnimeNewsStack: 'newspaper-outline', // Updated icon
+  AnimeNewsStack: 'newspaper-outline',
   Downloads: 'download-outline',
   Search: 'search-outline',
+  Manga: 'book-outline',
   Profile: 'person-outline',
+  MovieStack: 'tv'
 };
 
 function HomeStack() {
@@ -35,11 +43,32 @@ function HomeStack() {
   );
 }
 
+function MangaStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MangaSearch" component={MangaSearchScreen} />
+      <Stack.Screen name="MangaInfo" component={MangaInfoScreen} />
+      <Stack.Screen name="MangaReader" component={MangaReaderScreen} />
+      <Stack.Screen name="ImageViewer" component={ImageViewer} />
+    </Stack.Navigator>
+  );
+}
+
+function MovieStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MovieSearch" component={MovieSearchScreen} />
+      <Stack.Screen name="MovieInfo" component={MovieInfoScreen} />
+      <Stack.Screen name="MovieStreaming" component={MovieStreamingScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function AnimeNewsStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="AnimeNews" component={AnimeNewsScreen} />
-      <Stack.Screen name="NewsInfo" component={NewsInfoScreen} /> 
+      <Stack.Screen name="NewsInfo" component={NewsInfoScreen} />
     </Stack.Navigator>
   );
 }
@@ -47,13 +76,16 @@ function AnimeNewsStack() {
 function CustomTabBar({ state, navigation }) {
   const routeName = state.routes[state.index].name;
 
-  // Check if any route has 'Streaming' screen active
+  // Check if the 'Streaming' route is active in any of the stacks
   const isStreamingActive = state.routes.some(route => route.state?.routes?.some(subRoute => subRoute.name === 'Streaming'));
+  const isMovieStreamingActive = state.routes.some(route => route.state?.routes?.some(subRoute => subRoute.name === 'MovieStreaming'));
 
   if (isStreamingActive) {
-    return null; // Hide tab bar for StreamingScreen
+    return null;
   }
-
+  if (isMovieStreamingActive){
+    return null;
+  }
   return (
     <View
       style={{
@@ -85,8 +117,9 @@ function AppNavigator() {
       <Tab.Navigator tabBar={(props) => <CustomTabBar {...props} />} screenOptions={{ headerShown: false }}>
         <Tab.Screen name="HomeStack" component={HomeStack} />
         <Tab.Screen name="Search" component={SearchScreen} />
+        <Tab.Screen name="Manga" component={MangaStack} />
         <Tab.Screen name="AnimeNewsStack" component={AnimeNewsStack} />
-        <Tab.Screen name="Downloads" component={DownloadsScreen} />
+        <Tab.Screen name="MovieStack" component={MovieStack} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
       </Tab.Navigator>
     </NavigationContainer>
