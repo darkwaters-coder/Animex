@@ -21,7 +21,7 @@ const MangaInfoScreen = () => {
       console.log(`Fetching manga info for ID: ${mangaId} and Provider: ${provider}`);
 
       try {
-        const response = await axios.get(`https://consumet-sand.vercel.app/manga/mangahere/info?id=${mangaId}`);
+        const response = await axios.get(`https://consumet1-sand.vercel.app/manga/mangahere/info?id=${mangaId}`);
         const mangaData = response.data;
         mangaData.chapters = (mangaData.chapters || []).reverse(); // Reverse chapters here
         setMangaInfo(mangaData);

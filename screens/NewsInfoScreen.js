@@ -29,7 +29,7 @@ const NewsInfoScreen = ({ route }) => {
   useEffect(() => {
     const fetchNewsInfo = async () => {
       try {
-        const response = await axios.get(`https://consumet-sand.vercel.app/news/ann/info?id=${id}`);
+        const response = await axios.get(`https://consumet1-sand.vercel.app/news/ann/info?id=${id}`);
         //console.log('Response data:', response.data);
         setNewsInfo(response.data);
       } catch (error) {

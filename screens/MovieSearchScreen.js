@@ -20,7 +20,7 @@ const SearchScreen = () => {
     if (!newQuery) return;
 
     try {
-      const response = await axios.get(`https://consumet-sand.vercel.app/meta/tmdb/${newQuery}?page=${page}`);
+      const response = await axios.get(`https://consumet1-sand.vercel.app/meta/tmdb/${newQuery}?page=${page}`);
       if (response.data && response.data.results) {
         setResults(prevResults => (page === 1 ? response.data.results : [...prevResults, ...response.data.results]));
       } else {

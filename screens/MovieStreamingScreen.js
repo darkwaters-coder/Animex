@@ -30,7 +30,7 @@ const StreamingScreen = ({ route }) => {
     useEffect(() => {
       const fetchVideoData = async () => {
         try {
-          const url = `https://consumet-sand.vercel.app/meta/tmdb/watch/${episodeId}?id=${showId}`;
+          const url = `https://consumet1-sand.vercel.app/meta/tmdb/watch/${episodeId}?id=${showId}`;
           console.log(`Episode ID: ${episodeId}`);
           console.log(`Show ID: ${showId}`);
   
@@ -143,7 +143,7 @@ const StreamingScreen = ({ route }) => {
         setSavedPosition(0);
         setCurrentEpisodeIndex(episodes.findIndex((ep) => ep.id === episode.id));
         try {
-          const response = await axios.get(`https://consumet-sand.vercel.app/meta/tmdb/watch/${episode.id}?id=${showId}`);
+          const response = await axios.get(`https://consumet1-sand.vercel.app/meta/tmdb/watch/${episode.id}?id=${showId}`);
           const videoData = response.data;
           console.log(videoData);
           setVideoUrl(videoData.sources[0].url);

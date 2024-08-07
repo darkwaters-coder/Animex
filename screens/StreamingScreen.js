@@ -29,7 +29,7 @@ const StreamingScreen = ({ route }) => {
   useEffect(() => {
     const fetchVideoData = async () => {
       try {
-        const response = await axios.get(`https://consumet-sand.vercel.app/anime/${provider}/watch/${episodeId}?server=vidstreaming`);
+        const response = await axios.get(`https://consumet1-sand.vercel.app/anime/${provider}/watch/${episodeId}?server=vidstreaming`);
         const videoData = response.data;
         setVideoUrl(videoData.sources[0].url);
         setQualities(videoData.sources);
@@ -137,7 +137,7 @@ const StreamingScreen = ({ route }) => {
       setSavedPosition(0); // Reset saved position for new episode
       setCurrentEpisodeIndex(episodes.findIndex((ep) => ep.id === episode.id)); // Update current episode index
       try {
-        const response = await axios.get(`https://consumet-sand.vercel.app/anime/${provider}/watch/${episode.id}?server=vidstreaming`);
+        const response = await axios.get(`https://consumet1-sand.vercel.app/anime/${provider}/watch/${episode.id}?server=vidstreaming`);
         const videoData = response.data;
         setVideoUrl(videoData.sources[0].url); // Set the new video URL
         setQualities(videoData.sources); // Set the new qualities

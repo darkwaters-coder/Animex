@@ -44,7 +44,7 @@ const MovieInfoScreen = ({ route }) => {
 
   const fetchMovieInfo = async () => {
     try {
-      const response = await axios.get(`https://consumet-sand.vercel.app/meta/tmdb/info/${id}?type=${type}`);
+      const response = await axios.get(`https://consumet1-sand.vercel.app/meta/tmdb/info/${id}?type=${type}`);
       if (response.status === 200) {
         setMovieInfo(response.data);
         if (type === 'TV Series') {

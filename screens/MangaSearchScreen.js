@@ -22,7 +22,7 @@ const MangaSearchScreen = () => {
     if (!newQuery) return;
 
     try {
-      const response = await axios.get(`https://consumet-sand.vercel.app/manga/mangahere/${newQuery}`);
+      const response = await axios.get(`https://consumet1-sand.vercel.app/manga/mangahere/${newQuery}`);
       setResults(response.data.results);
       setPage(1); // Reset page number
       setHasNextPage(response.data.hasNextPage);
@@ -36,7 +36,7 @@ const MangaSearchScreen = () => {
     if (!hasNextPage) return;
 
     try {
-      const response = await axios.get(`https://consumet-sand.vercel.app/manga/mangahere/${query}?page=${page + 1}`);
+      const response = await axios.get(`https://consumet1-sand.vercel.app/manga/mangahere/${query}?page=${page + 1}`);
       setResults(prevResults => [...prevResults, ...response.data.results]);
       setPage(prevPage => prevPage + 1);
       setHasNextPage(response.data.hasNextPage);

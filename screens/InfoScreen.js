@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import * as NavigationBar from 'expo-navigation-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const InfoScreen = ({ route }) => {
   const { id, provider } = route.params;
@@ -16,20 +17,29 @@ const InfoScreen = ({ route }) => {
 
   useEffect(() => {
     const enableImmersiveMode = async () => {
-      await NavigationBar.setVisibilityAsync('hidden');
-      await NavigationBar.setBehaviorAsync('inset-swipe');
+      try {
+        await NavigationBar.setVisibilityAsync('hidden');
+        await NavigationBar.setBehaviorAsync('inset-swipe');
+      } catch (error) {
+        console.error('Failed to enable immersive mode:', error);
+      }
     };
 
     enableImmersiveMode();
 
     return () => {
       const disableImmersiveMode = async () => {
-        await NavigationBar.setVisibilityAsync('visible');
+        try {
+          await NavigationBar.setVisibilityAsync('visible');
+        } catch (error) {
+          console.error('Failed to disable immersive mode:', error);
+        }
       };
 
       disableImmersiveMode();
     };
   }, []);
+
   useEffect(() => {
     fetchAnimeInfo();
   }, [id, provider]);
@@ -44,10 +54,11 @@ const InfoScreen = ({ route }) => {
 
   const fetchAnimeInfo = async () => {
     try {
-      const response = await axios.get(`https://consumet-sand.vercel.app/anime/${provider}/info/${id}`);
+      const response = await axios.get(`https://consumet1-sand.vercel.app/anime/gogoanime/info/${id}`);
       setAnimeInfo(response.data);
     } catch (error) {
-      console.error(error);
+      console.error('Failed to fetch anime info:', error);
+      Alert.alert('Error', 'Failed to fetch anime information. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -63,12 +74,35 @@ const InfoScreen = ({ route }) => {
 
   const handleDownload = async (episodeId) => {
     try {
-      const response = await axios.get(`https://consumet-sand.vercel.app/anime/${provider}/watch/${episodeId}?server=vidstreaming`);
+      const response = await axios.get(`https://consumet1-sand.vercel.app/anime/${provider}/watch/${episodeId}?server=vidstreaming`);
       const downloadLink = response.data.download;
       console.log(`Download link for episode ${episodeId}: ${downloadLink}`);
-      // Add download management logic here
+      navigation.navigate('WebView', { downloadLink, animeName: animeInfo.title, episodeId ,AnimeImage: animeInfo.image});
     } catch (error) {
-      console.error(error);
+      console.error('Failed to fetch download link:', error);
+      Alert.alert('Error', 'Failed to fetch download link. Please try again later.');
+    }
+  };
+
+  const handleAddToWatchlist = async () => {
+    try {
+      const existingWatchlist = await AsyncStorage.getItem('watchlist');
+      const watchlist = existingWatchlist ? JSON.parse(existingWatchlist) : [];
+
+      // Check if the anime is already in the watchlist
+      const isAlreadyInWatchlist = watchlist.some(anime => anime.id === id);
+      if (isAlreadyInWatchlist) {
+        Alert.alert('Info', 'Anime is already in your watchlist.');
+        return;
+      }
+
+      // Add new anime to the watchlist
+      watchlist.push(animeInfo);
+      await AsyncStorage.setItem('watchlist', JSON.stringify(watchlist));
+      Alert.alert('Success', 'Anime added to watchlist.');
+    } catch (error) {
+      console.error('Failed to add anime to watchlist:', error);
+      Alert.alert('Error', 'Failed to add anime to watchlist. Please try again later.');
     }
   };
 
@@ -93,11 +127,18 @@ const InfoScreen = ({ route }) => {
     );
   }
 
+  if (!animeInfo) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Failed to load anime information.</Text>
+      </View>
+    );
+  }
+
   const episodeRanges = generateEpisodeRanges(animeInfo.episodes.length);
 
-  return (    
+  return (
     <ScrollView style={styles.container}>
-      
       <Image source={{ uri: animeInfo.image }} style={styles.image} />
       <View style={styles.infoContainer}>
         <Text style={styles.title}>{animeInfo.title}</Text>
@@ -134,6 +175,13 @@ const InfoScreen = ({ route }) => {
             </TouchableOpacity>
           </View>
         ))}
+        <TouchableOpacity
+          style={styles.watchlistButton}
+          onPress={handleAddToWatchlist}
+        >
+          <Ionicons name="bookmark-outline" size={24} color="white" />
+          <Text style={styles.watchlistButtonText}>Add to Watchlist</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -164,53 +212,63 @@ const styles = StyleSheet.create({
   synopsis: {
     color: '#fff',
     marginTop: 10,
-    lineHeight: 20,
+    textAlign: 'justify',
   },
   details: {
     color: '#fff',
-    marginTop: 10,
+    marginTop: 5,
   },
   episodesHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
     color: '#fff',
     marginTop: 20,
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   picker: {
-    height: 50,
-    width: 150,
-    color: 'white',
+    color: '#fff',
     backgroundColor: '#333',
-    marginVertical: 10,
-    borderRadius: 5,
+    marginTop: 10,
   },
   episodeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 10,
-  },
-  episodeItem: {
     backgroundColor: '#333',
     padding: 10,
     borderRadius: 5,
+  },
+  episodeItem: {
     flex: 1,
-    marginRight: 10,
   },
   episodeText: {
     color: '#fff',
-    fontSize: 16,
   },
   downloadButton: {
-    padding: 10,
-    backgroundColor: '#1e90ff',
-    borderRadius: 5,
+    marginLeft: 10,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#000',
+  },
+  errorText: {
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  watchlistButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    backgroundColor: '#333',
+    padding: 10,
+    borderRadius: 5,
+  },
+  watchlistButtonText: {
+    color: '#fff',
+    marginLeft: 10,
   },
 });
 

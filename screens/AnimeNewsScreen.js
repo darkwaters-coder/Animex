@@ -37,7 +37,7 @@ const AnimeNewsScreen = ({ navigation }) => {
   useEffect(() => {
     const fetchNewsFeeds = async () => {
       try {
-        const response = await axios.get('https://consumet-sand.vercel.app/news/ann/recent-feeds');
+        const response = await axios.get('https://consumet1-sand.vercel.app/news/ann/recent-feeds');
         setNewsFeeds(response.data);
       } catch (error) {
         setError(error);

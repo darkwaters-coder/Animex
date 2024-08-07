@@ -19,7 +19,7 @@ const MangaReaderScreen = ({ route }) => {
 
         setLoading(true);
         try {
-            const response = await axios.get(`https://consumet-sand.vercel.app/manga/mangahere/read?chapterId=${chapter.id}`);
+            const response = await axios.get(`https://consumet1-sand.vercel.app/manga/mangahere/read?chapterId=${chapter.id}`);
             const imageUrls = response.data.map(item => item.img);
             const imageHeaders = response.data.map(item => item.headerForImage);
 
